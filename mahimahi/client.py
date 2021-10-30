@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import socket
 import sys
 import random
@@ -6,14 +6,14 @@ import string
 import time
 import os
 import struct
-import thread
+import _thread
 
 
 SAVE_CWND = 1
 TCP_CONGESTION = 13
 ADDRESS = os.environ.get("MAHIMAHI_BASE") or "127.0.0.1"
 if len(sys.argv) != 3:
-    print "usage: python server.py PORT TUNER"
+    print("usage: python server.py PORT TUNER")
     sys.exit(-1)
 
 PORT = int(sys.argv[1])
@@ -22,16 +22,16 @@ TUNER = int(sys.argv[2])
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 if TUNER:
-    s.setsockopt(socket.IPPROTO_TCP, TCP_CONGESTION, 'tuner')
+    s.setsockopt(socket.IPPROTO_TCP, TCP_CONGESTION, b'tuner')
 else:
-    s.setsockopt(socket.IPPROTO_TCP, TCP_CONGESTION, 'cubic')
+    s.setsockopt(socket.IPPROTO_TCP, TCP_CONGESTION, b'cubic')
 
-print ADDRESS
+print(ADDRESS)
 try:
     s.connect((ADDRESS, PORT))
-    print "connection established"
+    print("connection established")
 except socket.error as msg:
-    print "cannot connect: ", msg
+    print("cannot connect: ", msg)
     sys.exit(-1)
 
 msg = ''.join(random.choice(string.ascii_letters) for _ in range(SIZE))
@@ -50,7 +50,7 @@ def log_cwnd (f, s):
 # Open a log file to print TCP info
 if SAVE_CWND:
     f = open("cwnd_data.csv", 'w')
-    thread.start_new_thread(log_cwnd, (f, s))
+    _thread.start_new_thread(log_cwnd, (f, s))
 
 while True:
-    s.send(msg)
+    s.send(msg.encode())
