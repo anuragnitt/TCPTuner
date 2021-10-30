@@ -440,9 +440,12 @@ static void hystart_update(struct sock* sk, u32 delay) {
 /* Track delayed acknowledgment ratio using sliding window
  * ratio = (15*ratio + sample) / 16
  */
-static void bictcp_acked(struct sock* sk, u32 cnt, s32 rtt_us) {
+
+/* https://elixir.bootlin.com/linux/latest/source/include/net/tcp.h#L1045 */
+static void bictcp_acked(struct sock* sk, const struct ack_sample* sample) {
   const struct tcp_sock* tp = tcp_sk(sk);
   struct bictcp* ca = inet_csk_ca(sk);
+  s32 rtt_us = sample->rtt_us;
   u32 delay;
 
   /* Some calls are for duplicates without timetamps */
