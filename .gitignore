@@ -3,6 +3,7 @@
 *.ko
 *.obj
 *.elf
+*.mod
 
 # Precompiled Headers
 *.gch
@@ -19,6 +20,10 @@
 *.so
 *.so.*
 *.dylib
+*.dwo
+*.cmd
+*.order
+*.symvers
 
 # Executables
 *.exe
