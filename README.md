@@ -5,7 +5,7 @@ See the [TCPTuner Paper (PDF)](https://arxiv.org/ftp/arxiv/papers/1605/1605.0198
 
 ## How to Build and Load the Kernel Module
 
-```
+``` bash
 cd module/
 make
 sudo rmmod tcp_tuner.ko
@@ -16,13 +16,13 @@ sudo sysctl -w net.ipv4.tcp_congestion_control=tuner
 ## The TCPTuner GUI
 ### Dependencies
 
-```
+``` bash
 sudo apt-get install qt5-qmake qt5-default
 ```
 
 ### To Build and Run
 
-```
+``` bash
 cd gui/TCPTuner/
 qmake
 make
@@ -52,14 +52,12 @@ This repository also contains a [MahiMahi](http://mahimahi.mit.edu/) simulation 
 
 ### Dependencies
 First, you must install MahiMahi:
-```
-sudo add-apt-repository ppa:keithw/mahimahi
-sudo apt-get update
+``` bash
 sudo apt-get install mahimahi
 ```
 
 Before you can run MahiMahi, you must set ip_forward=1
-```
+``` bash
 sudo sysctl -w net.ipv4.ip_forward=1
 ```
 
@@ -68,7 +66,7 @@ Now, tcp_tuner should be set as the congestion control algorithm.
 ### Single Flow, Tail-drop Buffer
 The first simulation shows throughput and delay of a single TCP flow on a 12Mbps uplink.
 
-```
+``` bash
 cd mahimahi/
 ./start_all
 ```
@@ -76,22 +74,21 @@ cd mahimahi/
 ### Two Flows Sharing Bottleneck
 The second simulation shows throughput graphs of each flow sharing a bottleneck link. This can be used to compare default cubic to tcp_tuner.
 
-```
+``` bash
 cd mahimahi/
 ./start_shell
 ```
 
 Now that the bottleneck link is created, we can run multiple clients within that shell.
 
-```
-./start_client 5050 1 & <-- creates an tuner client in a new process
-./start_client 5050 0 & <-- creates a cubic client in a new process
+``` bash
+./start_client 5050 1 & # creates an tuner client in a new process
+./start_client 5050 0 & # creates a cubic client in a new process
 ```
 
 To close these
-```
-fg <--to bring one of the kid process to the foreground
-Ctrl+C
-(repeat for each client)
-exit <-- to exit the shell
+``` bash
+fg # to bring one of the kid process to the foreground
+Ctrl+C # repeat for each client)
+exit # to exit the shell
 ```
