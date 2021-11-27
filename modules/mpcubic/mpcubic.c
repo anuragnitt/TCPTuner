@@ -50,7 +50,7 @@
 
 static int fast_convergence __read_mostly = 1;
 static int alpha __read_mostly = 512;    /* = 512 / 512 */
-static int beta __read_mostly = 960;     /* = 717/1024 (BICTCP_BETA_SCALE) */
+static int beta __read_mostly = 308;     /* = 308/1024 (BICTCP_BETA_SCALE) */
 static int initial_ssthresh __read_mostly;
 static int bic_scale __read_mostly = 41;
 static int tcp_friendliness __read_mostly = 1;
@@ -250,8 +250,7 @@ static inline void bictcp_update(struct bictcp* ca, u32 cwnd, u32 acked) {
        */
       ca->bic_K = cubic_root(cube_factor
                              * (ca->last_max_cwnd - cwnd));
-      ca->bic_origin_point = ((ca->last_max_cwnd * BICTCP_BETA_SCALE) << 2)
-                              / ((BICTCP_BETA_SCALE << 3) + beta);
+      ca->bic_origin_point = ca->last_max_cwnd;
     }
   }
 
@@ -292,6 +291,9 @@ static inline void bictcp_update(struct bictcp* ca, u32 cwnd, u32 acked) {
   else {                                                /* above origin*/
     bic_target = ca->bic_origin_point + delta;
   }
+
+  bic_target *= ((BICTCP_BETA_SCALE << 3) + beta);
+  bic_target /= (BICTCP_BETA_SCALE << 4);
 
   /* cubic function - calc bictcp_cnt*/
   if (bic_target > cwnd) {
@@ -498,7 +500,7 @@ static int __init cubictcp_register(void) {
   beta_scale = 8 * (BICTCP_BETA_SCALE + beta) / 3
                / (BICTCP_BETA_SCALE - beta);
 
-  cube_rtt_scale = (bic_scale * 10);             /* 1024*c/rtt */
+  cube_rtt_scale = (bic_scale * 20);             /* 1024*c/rtt */
 
   /* calculate the "K" for (wmax-cwnd) = c/rtt * K^3
    *  so K = cubic_root( (wmax-cwnd)*rtt/c )

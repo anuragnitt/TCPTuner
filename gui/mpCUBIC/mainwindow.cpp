@@ -261,7 +261,7 @@ void MainWindow::on_btn_restoreDefaults_clicked() {
   int e;
   e = system("echo -n 1 > /sys/module/mpcubic/parameters/fast_convergence && "
              "echo -n 1 > /sys/module/mpcubic/parameters/tcp_friendliness && "
-             "echo -n 717 > /sys/module/mpcubic/parameters/beta && "
+             "echo -n 308 > /sys/module/mpcubic/parameters/beta && "
              "echo -n 512 > /sys/module/mpcubic/parameters/alpha");
   if (DEBUG && e != 0) {
     cout << "[ERROR] Couldn't set defaults." << endl;

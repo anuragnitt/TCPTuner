@@ -23,9 +23,10 @@ int tcp_grapher::get_next() {
     t = 0;
   }
   else {
-    double K = cbrt(w_max * (1-beta) / C);
-    double delta = (t - K);
-    curr_window = max(curr_window, C * delta * delta * delta + w_max);
+    double K = cbrt(w_max * (beta) / C);
+    double delta = (t - (K / 2));
+    double window_size = (2 * C * delta * delta * delta + w_max) * (8 + beta);
+    curr_window = max(curr_window, window_size / 16);
     t++;
   }
   max_hit = max(curr_window, max_hit);
