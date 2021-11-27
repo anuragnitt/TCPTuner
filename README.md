@@ -68,7 +68,9 @@ The first simulation shows throughput and delay of a single TCP flow on a 12Mbps
 
 ``` bash
 cd mahimahi/
-./start_all
+./start_all 0 # default cubic client
+./start_all 1 # tuner cubic client
+./start_all 2 # mpcubic client
 ```
 
 ### Two Flows Sharing Bottleneck
