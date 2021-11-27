@@ -4,6 +4,7 @@
 *.obj
 *.elf
 *.mod
+*.mod.c
 
 # Precompiled Headers
 *.gch
@@ -32,6 +33,12 @@
 *.i*86
 *.x86_64
 *.hex
+gui/mpCUBIC/mpCUBIC
+gui/TCPTuner/TCPTuner
 
 # Debug files
 *.dSYM/
+
+# Misc
+cwnd_data.csv
+moc_predefs.h
