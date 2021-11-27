@@ -94,3 +94,48 @@ fg # to bring one of the kid process to the foreground
 Ctrl+C # repeat for each client)
 exit # to exit the shell
 ```
+
+## Plotting congestion window size graph
+
+### Dependencies
+First install the following package
+```bash
+sudo apt-get installn iperf gnuplot texlive-font-utils
+```
+
+Load the tcp_probe kernel module if not already present in your version of linux
+```bash
+cd modules/tcpprobe
+make
+sudo insmod tcp_tuner.ko
+```
+
+
+Collect runtime data using tcp_probe
+```bash
+# https://wiki.linuxfoundation.org/networking/tcp_testing
+cd plot/data
+sudo modprobe tcp_probe port=5051 full=1
+
+iperf -p 5051 -s & # start iperf server on receiver's end
+IPERFSERVER=$!
+
+# record the captured data using one of the below techniques
+sudo sysctl -w net.ipv4.tcp_congestion_control=tuner # if using CUBIC
+sudo cat /proc/net/tcpprobe > cubic.dat &
+
+sudo sysctl -w net.ipv4.tcp_congestion_control=mpcubic # if using mpCUBIC
+sudo cat /proc/net/tcpprobe > mpcubic.dat &
+
+TCPCAPTURE=$!
+iperf -i 10 -t 300 -p 5051 -c 0.0.0.0 # start iperf client on sender's end
+
+sudo kill $IPERFSERVER
+sudo kill $TCPCAPTURE
+```
+
+Plot a graph
+```bash
+cd plot
+./generate_plot.sh # generates plot in a .pdf
+```
