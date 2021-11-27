@@ -21,7 +21,7 @@ set title "CUBIC on 1Mbit/1Mbit/50ms/50ms"
 plot "data/cubic.dat" using 1:7 title "snd_cwnd" with linespoints, \
   "data/cubic.dat" using 1:($8>=2147483647 ? 0 : $8) title "snd_ssthresh" with linespoints
 
-set xrange [0:110]
+set xrange [0:100]
 set title "mpCUBIC on 1Mbit/1Mbit/50ms/50ms"
 plot "data/mpcubic.dat" using 1:7 title "snd_cwnd" with linespoints, \
   "data/mpcubic.dat" using 1:($8>=2147483647 ? 0 : $8) title "snd_ssthresh" with linespoints
