@@ -9,6 +9,6 @@ sudo insmod $MODULE_PATH/tcptuner/tcp_tuner.ko
 sudo insmod $MODULE_PATH/mpcubic/mpcubic.ko
 
 sudo sysctl -w net.ipv4.tcp_congestion_control=tuner
-# sudo sysctl -w net.ipv4.tcp_congestion_control=mpcubic
+sudo sysctl -w net.ipv4.tcp_congestion_control=mpcubic
 
 sudo sysctl -w net.ipv4.ip_forward=1
