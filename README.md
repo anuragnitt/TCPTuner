@@ -1,35 +1,46 @@
 # TCPTuner
-TCPTuner is TCP congestion control kernel module and GUI packaged together. By loading our kernel module (which is essentially a clone of CUBIC), and running the GUI, users can adjust several parameters of the CUBIC congestion control algorithm.
+TCPTuner is TCP congestion control kernel module and GUI packaged together. By loading this kernel module and running the GUI, users can adjust several parameters of the CUBIC congestion control algorithm.
 
-See the [TCPTuner Paper (PDF)](https://arxiv.org/ftp/arxiv/papers/1605/1605.01987.pdf) for more information about the background, implementation, and contributions of TCPTuner.
+Two variations of CUBIC congestion control algorithm are implemented here:
+* Conventional CUBIC ([reference paper](https://arxiv.org/ftp/arxiv/papers/1605/1605.01987.pdf))
+* Multipath CUBIC ([reference paper](https://www.researchgate.net/publication/341995073_mpCUBIC_A_CUBIC-like_Congestion_Control_Algorithm_for_Multipath_TCP))
 
-## How to Build and Load the Kernel Module
+## How to Build and Load the Kernel Modules
 
+**This version of the project was developed and tested on an Ubuntu 20.04 machine running version 5.11 of the Linux kernel**
+
+To build the tcptuner kernel module:
 ``` bash
-cd module/
+cd module/tcptuner
 make
 sudo rmmod tcp_tuner.ko
 sudo insmod tcp_tuner.ko
-sudo sysctl -w net.ipv4.tcp_congestion_control=tuner
+sudo sysctl -w net.ipv4.tcp_congestion_control=tuner # make 'tuner' the default choice for the system
 ```
 
-## The TCPTuner GUI
+Follow similar steps to build other kernel modules in `modules` directory.
+
+## The Graphical User Interface
 ### Dependencies
 
+First install the following packages:
 ``` bash
 sudo apt-get install qt5-qmake qt5-default
 ```
 
 ### To Build and Run
 
+To build and run the TCPTuner GUI:
 ``` bash
-cd gui/TCPTuner/
+cd gui/TCPTuner
 qmake
 make
 sudo ./TCPTuner
 ```
 
-## TCPTuner's Parameters
+Follow similar steps to build and run the mpCUBIC GUI.
+
+## GUI Parameters
 TCPTuner exposes the parameters of TCP CUBIC to the user via the TCPTuner GUI. The parameters present in TCP CUBIC, along with their descriptions and default values are in the table below.
 
 Parameter        | Description                                                                 | Default
@@ -51,67 +62,74 @@ initcwnd  | the initial congestion window size for connections to this destinati
 This repository also contains a [MahiMahi](http://mahimahi.mit.edu/) simulation environment so that users can see the impact of TCP congestion control parameters.
 
 ### Dependencies
-First, you must install MahiMahi:
+First, you must install the mahimahi package:
 ``` bash
 sudo apt-get install mahimahi
 ```
 
-Before you can run MahiMahi, you must set ip_forward=1
+Before you can run MahiMahi, you must:
 ``` bash
 sudo sysctl -w net.ipv4.ip_forward=1
 ```
 
-Now, tcp_tuner should be set as the congestion control algorithm.
-
-### Single Flow, Tail-drop Buffer
+### Single TCP Flow with tail-drop Buffer
 The first simulation shows throughput and delay of a single TCP flow on a 12Mbps uplink.
 
 ``` bash
-cd mahimahi/
+cd mahimahi
 ./start_all 0 # default cubic client
 ./start_all 1 # tuner cubic client
 ./start_all 2 # mpcubic client
 ```
 
-### Two Flows Sharing Bottleneck
-The second simulation shows throughput graphs of each flow sharing a bottleneck link. This can be used to compare default cubic to tcp_tuner.
+### Multiple TCP Flows Sharing a Bottleneck Link
+The second simulation shows throughput graphs of each flow sharing a bottleneck link. This can be used to compare default cubic to tcptuner/mpcubic.
 
 ``` bash
-cd mahimahi/
+cd mahimahi
 ./start_shell
 ```
 
-Now that the bottleneck link is created, we can run multiple clients within that shell.
+Now that the bottleneck link is created, we can run multiple clients within that shell:
 
 ``` bash
-./start_client 5050 1 & # creates an tuner client in a new process
-./start_client 5050 0 & # creates a cubic client in a new process
+./start_client 5050 0 & # creates a default cubic client as a new background process
+./start_client 5050 1 & # creates a tcptuner client as a new background process
+./start_client 5050 2 & # creates a mpcubic client as a new background process
 ```
 
-To close these
+To close these:
 ``` bash
-fg # to bring one of the kid process to the foreground
-Ctrl+C # repeat for each client)
-exit # to exit the shell
+fg # to bring one of the background process to the foreground
+Ctrl+C # repeat for each client
+exit # to close the bottleneck link
+
+pid=$(x=`sudo lsof -i :5050 -Fp` && echo ${x##p} | cut -d ' ' -f 1)
+sudo kill $pid # kill any ghost process occupying port 5050
 ```
 
-## Plotting congestion window size graph
+## Plotting congestion window size graphs
 
 ### Dependencies
-First install the following package
+
+First install the following packages:
 ```bash
-sudo apt-get installn iperf gnuplot texlive-font-utils
+sudo apt-get install iperf gnuplot texlive-font-utils
 ```
 
-Load the tcp_probe kernel module if not already present in your version of linux
+### Build and Load the tcp_probe Kernel Module
 ```bash
 cd modules/tcpprobe
 make
 sudo insmod tcp_tuner.ko
 ```
 
+### Capture Realtime Data
 
-Collect runtime data using tcp_probe
+Use the tcp_probe kernel module to capture realtime data of:
+* `cwnd` - congestion window size
+* `ssthresh` - slow start threshold
+
 ```bash
 # https://wiki.linuxfoundation.org/networking/tcp_testing
 cd plot/data
@@ -134,8 +152,10 @@ sudo kill $IPERFSERVER
 sudo kill $TCPCAPTURE
 ```
 
-Plot a graph
+### Plot Graphs
+
+Plot the captured data using `gnuplot` and `epstopdf`:
 ```bash
 cd plot
-./generate_plot.sh # generates plot in a .pdf
+./generate_plot.sh # generates a pdf containing graphs
 ```
